@@ -1,0 +1,47 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: longhorn
+  namespace: longhorn
+  labels:
+    app.kubernetes.io/name: longhorn
+spec:
+  chart: longhorn
+  version: 1.4.2
+  repo: https://charts.longhorn.io
+  targetNamespace: longhorn
+  valuesContent: |-
+    # https://github.com/longhorn/longhorn/blob/v1.4.2/chart/questions.yaml
+    ingress:
+      enabled: false
+
+    persistence:
+      defaultClass: true
+      reclaimPolicy: Delete
+      defaultClassReplicaCount: 3
+
+    defaultSettings:
+      taintToleration: node-role.kubernetes.io/control-plane=true:NoSchedule
+      allowRecurringJobWhileVolumeDetached: true
+      createDefaultDiskLabeledNodes: true
+      defaultDataLocality: disabled
+      replicaSoftAntiAffinity: false
+      replicaAutoBalance: disabled
+      storageOverProvisioningPercentage: 100
+      storageMinimalAvailablePercentage: 10
+      upgradeChecker: true
+      defaultReplicaCount: 3
+      autoSalvage: true
+      autoDeletePodWhenVolumeDetachedUnexpectedly: true
+      disableSchedulingOnCordonedNode: true
+      nodeDownPodDeletionPolicy: do-nothing
+      allowNodeDrainWithLastHealthyReplica: false
+      replicaReplenishmentWaitInterval: 600
+      concurrentReplicaRebuildPerNodeLimit: 5
+      disableRevisionCounter: false
+      allowVolumeCreationWithDegradedAvailability: true
+      autoCleanupSystemGeneratedSnapshot: true
+      concurrentAutomaticEngineUpgradePerNodeLimit: 0
+      guaranteedEngineManagerCPU: 10
+      guaranteedReplicaManagerCPU: 10

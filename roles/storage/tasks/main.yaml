@@ -1,0 +1,33 @@
+---
+- name: Configure external storage
+  become: true
+  ansible.posix.mount:
+    src: UUID={{ item.uuid }}
+    path: "{{ item.path }}"
+    fstype: "{{ item.fstype }}"
+    state: mounted
+  loop: "{{ storage_disks }}"
+  when: storage_disks is defined
+
+- name: Create external storage directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.0.path }}/{{ item.1 }}"
+    state: directory
+  with_subelements:
+    - "{{ storage_disks }}"
+    - dirs
+  when: storage_disks is defined
+
+- name: Install Open-iSCSI
+  become: true
+  ansible.builtin.apt:
+    name: open-iscsi
+    state: present
+
+- name: Configure Open-iSCSI service
+  become: true
+  ansible.builtin.service:
+    name: iscsid
+    state: started
+    enabled: true

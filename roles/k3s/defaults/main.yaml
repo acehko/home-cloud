@@ -1,0 +1,4 @@
+---
+k3s_enable: true
+k3s_start: true
+k3s_ansible_requirements: false

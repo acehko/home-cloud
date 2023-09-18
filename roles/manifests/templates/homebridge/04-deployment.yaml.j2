@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homebridge
+  namespace: homebridge
+  labels:
+    app.kubernetes.io/name: homebridge
+    app.kubernetes.io/component: homebridge
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homebridge
+      app.kubernetes.io/component: homebridge
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: homebridge
+        app.kubernetes.io/component: homebridge
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: agent4
+      containers:
+        - name: homebridge
+          image: oznu/homebridge:2022-10-14
+          env:
+            - name: TZ
+              value: {{ manifests_homebridge.timezone }}
+          ports:
+            - name: homebridge
+              containerPort: 51711
+            - name: dashboard
+              containerPort: 8581
+          volumeMounts:
+            - name: homebridge
+              mountPath: /homebridge
+              subPath: homebridge
+            - name: config
+              mountPath: /homebridge/config.json
+              subPath: homebridge.json
+            - name: config
+              mountPath: /homebridge/startup.sh
+              subPath: homebridge.sh
+            - name: homebridge
+              mountPath: /var/lib/bluetooth
+              subPath: bluetooth
+            - name: config
+              mountPath: /home/homebridge/.config/idasen-controller/config.yaml
+              subPath: idasen.yaml
+            - name: config
+              mountPath: /homebridge/idasenctl.sh
+              subPath: idasenctl.sh
+          securityContext:
+            privileged: true
+      volumes:
+        - name: homebridge
+          persistentVolumeClaim:
+            claimName: homebridge
+        - name: config
+          configMap:
+            name: homebridge
+            defaultMode: 0777

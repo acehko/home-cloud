@@ -1,0 +1,23 @@
+---
+- name: Validate {{ app if app is defined else 'all' }} Kubernetes manifests
+  become: true
+  vars:
+    template_dir: ../templates/{{ app if app is defined else '' }}
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: /tmp/k8s-manifest.yaml
+    validate: kubectl apply --validate=true --dry-run=client --filename=%s
+  loop: "{{ query('filetree', template_dir) | sort(attribute='path') }}"
+  when: validate is defined and item.state == 'file'
+  changed_when: false
+
+- name: Apply {{ app if app is defined else 'all' }} Kubernetes manifests
+  become: true
+  vars:
+    template_dir: ../templates/{{ app if app is defined else '' }}
+  kubernetes.core.k8s:
+    kubeconfig: "{{ manifests_kubeconfig }}"
+    template: "{{ item.src }}"
+    state: present
+  loop: "{{ query('filetree', template_dir) | sort(attribute='path') }}"
+  when: validate is not defined and item.state == 'file'

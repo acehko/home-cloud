@@ -1,0 +1,5 @@
+---
+- hosts: home_cloud_controller
+  roles:
+    - role: manifests
+      tags: manifests

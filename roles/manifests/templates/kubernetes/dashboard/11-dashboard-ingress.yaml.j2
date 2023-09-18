@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  labels:
+    app.kubernetes.io/name: kubernetes-dashboard
+    app.kubernetes.io/component: dashboard
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned
+spec:
+  rules:
+    - host: {{ manifests_kubernetes.dashboard.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  name: dashboard
+  tls:
+    - hosts:
+        - {{ manifests_kubernetes.dashboard.host }}
+      secretName: kubernetes-dashboard-cert

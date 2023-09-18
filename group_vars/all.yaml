@@ -1,0 +1,242 @@
+---
+# Cloud
+cloud_nodes:
+  controller:
+    nodename: "{{ home_cloud.nodes.controller.nodename }}"
+    hostname: "{{ home_cloud.nodes.controller.hostname }}"
+    host: "{{ home_cloud.nodes.controller.host }}"
+    ip: "{{ home_cloud.nodes.controller.ip }}"
+    disks:
+      - name: usb31
+        uuid: 26280f5c-770c-42bc-907c-bcdc10d2621d
+        fstype: ext4
+        path: /external/usb31
+        dirs:
+          - k3s/longhorn
+          - k3s/backup
+      - name: usb32
+        uuid: 45794619-8cc3-4892-a78a-6ae455cb5d6b
+        fstype: ext4
+        path: /external/usb32
+        dirs:
+          - k3s/longhorn
+          - k3s/backup
+
+  agent1:
+    nodename: "{{ home_cloud.nodes.agent1.nodename }}"
+    hostname: "{{ home_cloud.nodes.agent1.hostname }}"
+    host: "{{ home_cloud.nodes.agent1.host }}"
+    ip: "{{ home_cloud.nodes.agent1.ip }}"
+    disks:
+      - name: usb31
+        uuid: ab281bbd-3046-48dc-b733-4ed37f578c67
+        fstype: ext4
+        path: /external/usb31
+        dirs:
+          - k3s/longhorn
+      - name: usb32
+        uuid: a56d32ab-5a84-4900-a7df-0c7fa47fecf9
+        fstype: ext4
+        path: /external/usb32
+        dirs:
+          - k3s/longhorn
+
+  agent2:
+    nodename: "{{ home_cloud.nodes.agent2.nodename }}"
+    hostname: "{{ home_cloud.nodes.agent2.hostname }}"
+    host: "{{ home_cloud.nodes.agent2.host }}"
+    ip: "{{ home_cloud.nodes.agent2.ip }}"
+    disks:
+      - name: usb31
+        uuid: 9226c032-d23b-4af1-8d94-84b1f569ff7d
+        fstype: ext4
+        path: /external/usb31
+        dirs:
+          - k3s/longhorn
+      - name: usb32
+        uuid: 550002fd-fde1-4fdf-953f-84f6fd16275b
+        fstype: ext4
+        path: /external/usb32
+        dirs:
+          - k3s/longhorn
+
+  agent3:
+    nodename: "{{ home_cloud.nodes.agent3.nodename }}"
+    hostname: "{{ home_cloud.nodes.agent3.hostname }}"
+    host: "{{ home_cloud.nodes.agent3.host }}"
+    ip: "{{ home_cloud.nodes.agent3.ip }}"
+    disks:
+      - name: usb31
+        uuid: 9dabc8e2-1834-4c65-84b3-7626f938e4c7
+        fstype: ext4
+        path: /external/usb31
+        dirs:
+          - k3s/longhorn
+      - name: usb32
+        uuid: 962fd9a9-8858-498d-89c2-b23a5ec2b9d7
+        fstype: ext4
+        path: /external/usb32
+        dirs:
+          - k3s/longhorn
+
+  agent4:
+    nodename: "{{ home_cloud.nodes.agent4.nodename }}"
+    hostname: "{{ home_cloud.nodes.agent4.hostname }}"
+    host: "{{ home_cloud.nodes.agent4.host }}"
+    ip: "{{ home_cloud.nodes.agent4.ip }}"
+    disks:
+      - name: usb31
+        uuid: 2142fc06-8aca-441e-8b03-7f40c1b5e4c9
+        fstype: ext4
+        path: /external/usb31
+        dirs:
+          - k3s/longhorn
+      - name: usb32
+        uuid: c0780adc-77c0-464c-bd11-f933a47cdde8
+        fstype: ext4
+        path: /external/usb32
+        dirs:
+          - k3s/longhorn
+
+  agent5:
+    nodename: "{{ home_cloud.nodes.agent5.nodename }}"
+    hostname: "{{ home_cloud.nodes.agent5.hostname }}"
+    host: "{{ home_cloud.nodes.agent5.host }}"
+    ip: "{{ home_cloud.nodes.agent5.ip }}"
+
+cloud_agent_nodes: "{{ cloud_nodes.values() | selectattr('nodename', 'match', '^agent.+$') }}"
+
+cloud_node: "{{ (cloud_nodes.values() | selectattr('hostname', 'equalto', ansible_facts.hostname) | first) }}"
+cloud_is_controller: "{{ true if cloud_node.nodename == 'controller' else false }}"
+
+# Storage
+storage_disks: "{{ cloud_node.disks if cloud_node.disks is defined else [] }}"
+
+# K3s
+k3s_url: https://get.k3s.io
+k3s_version: v1.27.1+k3s1
+k3s_dir: /var/lib/rancher/k3s
+k3s_config_dir: /etc/rancher/k3s
+
+k3s_backup: "{{ cloud_is_controller }}"
+k3s_backup_dirs:
+  - "{{ cloud_nodes.controller.disks.0.path }}/k3s/backup"
+  - "{{ cloud_nodes.controller.disks.1.path }}/k3s/backup"
+
+k3s_mode: "{{ 'server' if cloud_is_controller else 'agent' }}"
+k3s_ansible_requirements: "{{ cloud_is_controller }}"
+k3s_node_name: "{{ cloud_node.nodename }}"
+k3s_server_url: https://{{ cloud_nodes.controller.ip }}:6443
+k3s_registry:
+  host: "{{ home_cloud.registry.host }}"
+  username: "{{ home_cloud.registry.username }}"
+  password: "{{ home_cloud.registry.password | b64decode }}"
+
+k3s_enable: true
+k3s_start: true
+
+# Manifests
+manifests_dir: /etc/kubernetes/manifests
+manifests_kubeconfig: "{{ k3s_config_dir }}/k3s.yaml"
+
+manifests_kubernetes:
+  dashboard:
+    host: "{{ home_cloud.kubernetes.dashboard.host }}"
+
+manifests_registry:
+  host: "{{ home_cloud.registry.host }}"
+  username: "{{ home_cloud.registry.username }}"
+  password: "{{ home_cloud.registry.password | b64decode | password_hash('md5') | b64encode }}"
+  dashboard:
+    host: "{{ home_cloud.registry.dashboard.host }}"
+    username: "{{ home_cloud.registry.dashboard.username }}"
+    password: "{{ home_cloud.registry.dashboard.password | b64decode | password_hash('md5') | b64encode }}"
+
+manifests_haproxy:
+  host: "{{ home_cloud.haproxy.host }}"
+  external_ips: "{{ cloud_agent_nodes | map(attribute='ip') }}"
+  username: "{{ home_cloud.haproxy.username }}"
+  password: "{{ home_cloud.haproxy.password | b64decode | password_hash('md5') | b64encode }}"
+  timezone: "{{ home.timezone }}"
+
+manifests_pihole:
+  host: "{{ home_cloud.pihole.host }}"
+  healthz_host: healthz.{{ home_cloud.domain }}
+  ip: "{{ home_cloud.pihole.ip }}"
+  external_ips: "{{ cloud_agent_nodes | map(attribute='ip') }}"
+  username: "{{ home_cloud.pihole.username }}"
+  password: "{{ home_cloud.pihole.password }}"
+  timezone: "{{ home.timezone }}"
+  upstream_dns: "{{ home_network.upstream_dns }}"
+  dns_records: >-
+    {{
+      cloud_nodes.values() | list +
+      dict(cloud_agent_nodes | map(attribute='ip') | product([home_cloud.domain])) |
+      dict2items(key_name='ip', value_name='host')
+    }}
+
+manifests_longhorn:
+  host: "{{ home_cloud.longhorn.host }}"
+  username: "{{ home_cloud.longhorn.username }}"
+  password: "{{ home_cloud.longhorn.password | b64decode | password_hash('md5') | b64encode }}"
+  disks:
+    controller:
+      - name: "{{ cloud_nodes.controller.disks.0.name }}"
+        path: "{{ cloud_nodes.controller.disks.0.path }}/k3s/longhorn"
+        allowScheduling: true
+      - name: "{{ cloud_nodes.controller.disks.1.name }}"
+        path: "{{ cloud_nodes.controller.disks.1.path }}/k3s/longhorn"
+        allowScheduling: true
+    agent1:
+      - name: "{{ cloud_nodes.agent1.disks.0.name }}"
+        path: "{{ cloud_nodes.agent1.disks.0.path }}/k3s/longhorn"
+        allowScheduling: true
+      - name: "{{ cloud_nodes.agent1.disks.1.name }}"
+        path: "{{ cloud_nodes.agent1.disks.1.path }}/k3s/longhorn"
+        allowScheduling: true
+    agent2:
+      - name: "{{ cloud_nodes.agent2.disks.0.name }}"
+        path: "{{ cloud_nodes.agent2.disks.0.path }}/k3s/longhorn"
+        allowScheduling: true
+      - name: "{{ cloud_nodes.agent2.disks.1.name }}"
+        path: "{{ cloud_nodes.agent2.disks.1.path }}/k3s/longhorn"
+        allowScheduling: true
+    agent3:
+      - name: "{{ cloud_nodes.agent3.disks.0.name }}"
+        path: "{{ cloud_nodes.agent3.disks.0.path }}/k3s/longhorn"
+        allowScheduling: true
+      - name: "{{ cloud_nodes.agent3.disks.1.name }}"
+        path: "{{ cloud_nodes.agent3.disks.1.path }}/k3s/longhorn"
+        allowScheduling: true
+    agent4:
+      - name: "{{ cloud_nodes.agent4.disks.0.name }}"
+        path: "{{ cloud_nodes.agent4.disks.0.path }}/k3s/longhorn"
+        allowScheduling: true
+      - name: "{{ cloud_nodes.agent4.disks.1.name }}"
+        path: "{{ cloud_nodes.agent4.disks.1.path }}/k3s/longhorn"
+        allowScheduling: true
+
+manifests_grafana:
+  host: "{{ home_cloud.grafana.host }}"
+  username: "{{ home_cloud.grafana.username }}"
+  password: "{{ home_cloud.grafana.password }}"
+
+manifests_homebridge:
+  host: "{{ home_cloud.homebridge.host }}"
+  timezone: "{{ home.timezone }}"
+  username: "{{ home_cloud.homebridge.username }}"
+  pin: "{{ home_cloud.homebridge.pin | b64decode }}"
+  platforms:
+    switchbot:
+      token: "{{ home_cloud.homebridge.platforms.switchbot.token }}"
+      secret: "{{ home_cloud.homebridge.platforms.switchbot.secret }}"
+  devices:
+    living_room_fan:
+      ip: "{{ home_cloud.homebridge.devices.living_room_fan.ip }}"
+      token: "{{ home_cloud.homebridge.devices.living_room_fan.token }}"
+    living_room_heating_switch:
+      device_id: "{{ home_cloud.homebridge.devices.living_room_heating_switch.device_id }}"
+    office_desk:
+      mac: "{{ home_cloud.homebridge.devices.office_desk.mac }}"
+      sit: "{{ home_cloud.homebridge.devices.office_desk.sit }}"
+      stand: "{{ home_cloud.homebridge.devices.office_desk.stand }}"

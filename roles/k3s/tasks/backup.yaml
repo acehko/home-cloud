@@ -1,0 +1,32 @@
+---
+# - name: Install cronie
+#   become: true
+#   ansible.builtin.apt:
+#     name: cronie
+#     state: present
+#   when: k3s_backup
+
+# - name: Start cronie
+#   become: true
+#   ansible.builtin.service:
+#     name: cronie
+#     state: started
+#     enabled: true
+#   when: k3s_backup
+
+- name: Copy K3s backup script
+  become: true
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: "{{ k3s_dir }}/backup.sh"
+    mode: u=rx,g=rx,o=rx
+  when: k3s_backup
+
+- name: Enable K3s backup
+  become: true
+  ansible.builtin.cron:
+    name: K3s backup
+    hour: "0,6,12,18"
+    minute: "0"
+    job: "{{ k3s_dir }}/backup.sh"
+  when: k3s_backup

@@ -1,0 +1,7 @@
+---
+- import_playbook: controller.yaml
+- import_playbook: agents.yaml
+- import_playbook: manifests.yaml
+  vars:
+    app: kubernetes
+- import_playbook: manifests.yaml

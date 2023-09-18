@@ -1,0 +1,52 @@
+---
+- name: Check if K3s is installed
+  ansible.builtin.command: which k3s
+  failed_when: false
+  changed_when: true
+  register: k3s_installed
+
+- name: Create K3s directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ k3s_dir }}"
+    - "{{ k3s_config_dir }}"
+  when: k3s_installed.rc
+
+- name: Copy K3s config
+  become: true
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ k3s_config_dir }}/{{ item.dest }}"
+  when: k3s_installed.rc
+  with_items:
+    - {src: "{{ k3s_mode }}.yaml.j2", dest: "config.yaml"}
+    # - {src: "registries.yaml.j2", dest: "registries.yaml"}
+
+- name: Install K3s
+  become: true
+  ansible.builtin.shell: |
+    curl -sfL {{ k3s_url }} | \
+    INSTALL_K3S_VERSION={{ k3s_version }} \
+    INSTALL_K3S_EXEC={{ k3s_mode }} \
+    INSTALL_K3S_NAME={{ k3s_mode }} \
+    INSTALL_K3S_SKIP_ENABLE=true \
+    INSTALL_K3S_SKIP_START=true \
+    sh -
+  when: k3s_installed.rc
+
+- name: Install Ansible Kubernetes module requirements
+  become: true
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+  when: k3s_ansible_requirements
+
+- name: Configure K3s service
+  become: true
+  ansible.builtin.service:
+    name: k3s-{{ k3s_mode }}
+    state: "{{ 'started' if k3s_start else 'stopped' }}"
+    enabled: "{{ k3s_enable }}"

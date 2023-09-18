@@ -1,0 +1,179 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homebridge
+  namespace: homebridge
+  labels:
+    app.kubernetes.io/name: homebridge
+data:
+  homebridge.json: |
+    {
+      "bridge": {
+        "name": "Homebridge",
+        "username": "{{ manifests_homebridge.username | upper }}",
+        "port": 51711,
+        "pin": "{{ manifests_homebridge.pin }}",
+        "advertiser": "bonjour-hap"
+      },
+      "platforms": [
+        {
+          "platform": "config",
+          "name": "Dashboard",
+          "port": 8581
+        },
+        {
+          "platform": "SwitchBot",
+          "name": "SwitchBot",
+          "credentials": {
+            "token": "{{ manifests_homebridge.platforms.switchbot.token }}",
+            "secret": "{{ manifests_homebridge.platforms.switchbot.secret }}"
+          },
+          "options": {
+            "refreshRate": 3600,
+            "devices": [
+              {
+                "deviceId": "{{ manifests_homebridge.devices.living_room_heating_switch.device_id }}",
+                "connectionType": "OpenAPI",
+                "refreshRate": 300,
+                "configDeviceType": "Bot",
+                "configDeviceName": "Living Room Heating Switch",
+                "bot": {
+                  "mode": "press",
+                  "deviceType": "switch",
+                  "allowPush": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "platform": "cmdSwitch2",
+          "name": "CMD Switch",
+          "switches": [
+            {
+              "name": "Office Desk",
+              "on_cmd": "/homebridge/idasenctl.sh move stand",
+              "off_cmd": "/homebridge/idasenctl.sh move sit",
+              "state_cmd": "/homebridge/idasenctl.sh state",
+              "polling": true,
+              "interval": 1,
+              "timeout": 30
+            }
+          ]
+        },
+        {
+          "platform": "miot",
+          "devices": [
+            {
+              "name": "Living Room Fan",
+              "ip": "{{ manifests_homebridge.devices.living_room_fan.ip }}",
+              "token": "{{ manifests_homebridge.devices.living_room_fan.token }}",
+              "pollingInterval": 5,
+              "horizontalMoveControl": true,
+              "buzzerControl": false,
+              "ledControl": false,
+              "childLockControl": false,
+              "modeControl": false,
+              "offDelayControl": false,
+              "ioniserControl": false,
+              "actionButtons": false,
+              "horizontalAngleButtons": false
+            }
+          ]
+        }
+      ],
+      "accessories": [
+        {
+          "accessory": "Thermostat",
+          "name": "Thermostat",
+          "temperatureDisplayUnits": 0
+        }
+      ]
+    }
+
+  homebridge.sh: |
+    #!/usr/bin/env bash
+
+    cd /homebridge
+
+    npm install --save @switchbot/homebridge-switchbot@2.2.2
+    npm install --save homebridge-cmdswitch2@0.2.10
+    npm install --save homebridge-dummy-thermostat@1.1.0
+    npm install --save homebridge-miot@1.6.1
+
+    apt-get update
+    apt-get install -y netcat bluetooth bluez
+
+    python3 -m pip install idasen-controller
+
+    sed -i 's/BLUETOOTH_ENABLED=0/BLUETOOTH_ENABLED=1/' /etc/init.d/bluetooth
+    service bluetooth start
+
+    ./idasenctl.sh server &
+
+  idasen.yaml: |
+    adapter_name: hci0
+    mac_address: {{ manifests_homebridge.devices.office_desk.mac }}
+    connection_timeout: 10
+    movement_timeout: 30
+    server_address: 127.0.0.1
+    server_port: 9123
+    favourites:
+      sit: {{ manifests_homebridge.devices.office_desk.sit }}
+      stand: {{ manifests_homebridge.devices.office_desk.stand }}
+
+  idasenctl.sh: |
+    #!/usr/bin/env bash
+
+    STATE_FILE="/homebridge/idasen_state"
+    STATE_SIT="sit"
+    STATE_STAND="stand"
+
+    CMD_SERVER="server"
+    CMD_STATE="state"
+    CMD_MOVE="move"
+
+    main() {
+      state_init
+
+      [[ "$1" == "$CMD_SERVER" ]] && { server; exit "$?"; }
+      [[ "$1" == "$CMD_STATE" ]] && { state; exit "$?"; }
+      [[ "$1" == "$CMD_MOVE" ]] && { move "$2"; exit "$?"; }
+
+      echo "Invalid command!"; exit 1
+    }
+
+    state_init() {
+      [[ ! -f "$STATE_FILE" ]] && state_save "$STATE_SIT" || true
+    }
+
+    state_save() {
+      echo "$1" > "$STATE_FILE"
+    }
+
+    state() {
+      [[ "$(cat "$STATE_FILE")" == "$STATE_STAND" ]] && return 0 || return 1
+    }
+
+    move() {
+      move_stop
+      move_to "$1"
+      state_save "$1"
+    }
+
+    move_to() {
+      echo "{\"move_to\": \"$1\"}" | nc -w 1 127.0.0.1 9123
+    }
+
+    move_stop() {
+      move_to 0
+    }
+
+    server() {
+      until idasen-controller --tcp-server; do
+        sleep 3
+      done
+    }
+
+    main "$1" "$2"

@@ -1,0 +1,19 @@
+---
+- hosts: home_cloud_controller
+  become: true
+  tasks:
+    - name: Get K3s server token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token
+      tags: k3s
+
+- hosts: home_cloud_agents
+  gather_facts: true
+  vars:
+    k3s_token: "{{ hostvars[cloud_nodes.controller.host].k3s_token.content | b64decode }}"
+  roles:
+    - role: storage
+      tags: storage
+    - role: k3s
+      tags: k3s

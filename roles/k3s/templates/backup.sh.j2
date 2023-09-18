@@ -1,0 +1,18 @@
+#! /usr/bin/bash
+set -e
+
+systemctl stop k3s-server
+cd {{ k3s_dir }}
+
+filename="server-$(date +%Y%m%d%H%M%S).tar.gz"
+tmp_filename="/tmp/$filename"
+
+tar -zcvf "$tmp_filename" server || true
+
+cp "$tmp_filename" "{{ k3s_backup_dirs.0 }}/$filename"
+cp "$tmp_filename" "{{ k3s_backup_dirs.1 }}/$filename"
+
+rm $(ls -t {{ k3s_backup_dirs.0 }}/server-* | awk 'NR>56') || true
+rm $(ls -t {{ k3s_backup_dirs.1 }}/server-* | awk 'NR>56') || true
+
+systemctl start k3s-server

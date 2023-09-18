@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: homebridge
+  labels:
+    app.kubernetes.io/name: homebridge
+    app.kubernetes.io/component: dashboard
+spec:
+  selector:
+    app.kubernetes.io/name: homebridge
+  ports:
+    - name: dashboard
+      port: 80
+      targetPort: dashboard

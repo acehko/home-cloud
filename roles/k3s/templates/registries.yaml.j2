@@ -1,0 +1,12 @@
+mirrors:
+  {{ k3s_registry.host }}:
+    endpoint:
+      - "https://{{ k3s_registry.host }}"
+
+configs:
+  {{ k3s_registry.host }}:
+    auth:
+      username: {{ k3s_registry.username }}
+      password: {{ k3s_registry.password }}
+    tls:
+      insecure_skip_verify: true

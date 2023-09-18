@@ -1,0 +1,8 @@
+---
+- hosts: home_cloud_controller
+  gather_facts: true
+  roles:
+    - role: storage
+      tags: storage
+    - role: k3s
+      tags: k3s

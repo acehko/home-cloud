@@ -1,0 +1,29 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard
+  namespace: haproxy
+  labels:
+    app.kubernetes.io/name: haproxy
+    app.kubernetes.io/component: dashboard
+  annotations:
+    ingress.kubernetes.io/auth-type: basic-auth
+    ingress.kubernetes.io/auth-secret: dashboard
+    cert-manager.io/cluster-issuer: selfsigned
+spec:
+  rules:
+    - host: {{ manifests_haproxy.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashboard
+                port:
+                  name: dashboard
+  tls:
+    - hosts:
+        - {{ manifests_haproxy.host }}
+      secretName: dashboard-cert
