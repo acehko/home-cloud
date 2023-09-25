@@ -61,32 +61,17 @@ data:
               "timeout": 30
             }
           ]
-        },
-        {
-          "platform": "miot",
-          "devices": [
-            {
-              "name": "Living Room Fan",
-              "ip": "{{ manifests_homebridge.devices.living_room_fan.ip }}",
-              "token": "{{ manifests_homebridge.devices.living_room_fan.token }}",
-              "pollingInterval": 5,
-              "horizontalMoveControl": true,
-              "buzzerControl": false,
-              "ledControl": false,
-              "childLockControl": false,
-              "modeControl": false,
-              "offDelayControl": false,
-              "ioniserControl": false,
-              "actionButtons": false,
-              "horizontalAngleButtons": false
-            }
-          ]
         }
       ],
       "accessories": [
         {
           "accessory": "Thermostat",
-          "name": "Thermostat",
+          "name": "Living Room Thermostat",
+          "temperatureDisplayUnits": 0
+        },
+        {
+          "accessory": "Thermostat",
+          "name": "Living Room Humidity",
           "temperatureDisplayUnits": 0
         }
       ]

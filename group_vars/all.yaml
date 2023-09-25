@@ -231,9 +231,6 @@ manifests_homebridge:
       token: "{{ home_cloud.homebridge.platforms.switchbot.token }}"
       secret: "{{ home_cloud.homebridge.platforms.switchbot.secret }}"
   devices:
-    living_room_fan:
-      ip: "{{ home_cloud.homebridge.devices.living_room_fan.ip }}"
-      token: "{{ home_cloud.homebridge.devices.living_room_fan.token }}"
     living_room_heating_switch:
       device_id: "{{ home_cloud.homebridge.devices.living_room_heating_switch.device_id }}"
     office_desk:
