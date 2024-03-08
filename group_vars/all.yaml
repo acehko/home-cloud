@@ -104,7 +104,8 @@ cloud_nodes:
     host: "{{ home_cloud.nodes.agent5.host }}"
     ip: "{{ home_cloud.nodes.agent5.ip }}"
 
-cloud_agent_nodes: "{{ cloud_nodes.values() | selectattr('nodename', 'match', '^agent.+$') }}"
+cloud_all_nodes: "{{ cloud_nodes.values() }}"
+cloud_agent_nodes: "{{ cloud_all_nodes | selectattr('nodename', 'match', '^agent.+$') }}"
 
 cloud_node: "{{ (cloud_nodes.values() | selectattr('hostname', 'equalto', ansible_facts.hostname) | first) }}"
 cloud_is_controller: "{{ true if cloud_node.nodename == 'controller' else false }}"
@@ -166,7 +167,7 @@ manifests_registry:
 
 manifests_haproxy:
   host: "{{ home_cloud.haproxy.host }}"
-  external_ips: "{{ cloud_agent_nodes | map(attribute='ip') }}"
+  external_ips: "{{ cloud_all_nodes | map(attribute='ip') }}"
   username: "{{ home_cloud.haproxy.username }}"
   password: "{{ home_cloud.haproxy.password | b64decode | password_hash('md5') | b64encode }}"
   timezone: "{{ home.timezone }}"

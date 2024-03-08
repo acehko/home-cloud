@@ -7,8 +7,8 @@ metadata:
   labels:
     app.kubernetes.io/name: registry
     app.kubernetes.io/component: dashboard
-    cert-manager.io/cluster-issuer: selfsigned
   annotations:
+    cert-manager.io/cluster-issuer: selfsigned
     ingress.kubernetes.io/auth-type: basic-auth
     ingress.kubernetes.io/auth-secret: dashboard
 spec:
