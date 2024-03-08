@@ -25,7 +25,7 @@ spec:
         kubernetes.io/hostname: agent4
       containers:
         - name: homebridge
-          image: oznu/homebridge:2022-10-14
+          image: "{{ manifests_homebridge.image }}"
           env:
             - name: TZ
               value: {{ manifests_homebridge.timezone }}
@@ -48,11 +48,11 @@ spec:
               mountPath: /var/lib/bluetooth
               subPath: bluetooth
             - name: config
-              mountPath: /home/homebridge/.config/idasen-controller/config.yaml
-              subPath: idasen.yaml
+              mountPath: /home/homebridge/.config/linak-controller/config.yaml
+              subPath: linak.yaml
             - name: config
-              mountPath: /homebridge/idasenctl.sh
-              subPath: idasenctl.sh
+              mountPath: /homebridge/linak.sh
+              subPath: linak.sh
           securityContext:
             privileged: true
       volumes:

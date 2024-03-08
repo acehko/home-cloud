@@ -23,39 +23,14 @@ data:
           "port": 8581
         },
         {
-          "platform": "SwitchBot",
-          "name": "SwitchBot",
-          "credentials": {
-            "token": "{{ manifests_homebridge.platforms.switchbot.token }}",
-            "secret": "{{ manifests_homebridge.platforms.switchbot.secret }}"
-          },
-          "options": {
-            "refreshRate": 3600,
-            "devices": [
-              {
-                "deviceId": "{{ manifests_homebridge.devices.living_room_heating_switch.device_id }}",
-                "connectionType": "OpenAPI",
-                "refreshRate": 300,
-                "configDeviceType": "Bot",
-                "configDeviceName": "Living Room Heating Switch",
-                "bot": {
-                  "mode": "press",
-                  "deviceType": "switch",
-                  "allowPush": false
-                }
-              }
-            ]
-          }
-        },
-        {
           "platform": "cmdSwitch2",
           "name": "CMD Switch",
           "switches": [
             {
               "name": "Office Desk",
-              "on_cmd": "/homebridge/idasenctl.sh move stand",
-              "off_cmd": "/homebridge/idasenctl.sh move sit",
-              "state_cmd": "/homebridge/idasenctl.sh state",
+              "on_cmd": "/homebridge/linak.sh move stand",
+              "off_cmd": "/homebridge/linak.sh move sit",
+              "state_cmd": "/homebridge/linak.sh state",
               "polling": true,
               "interval": 1,
               "timeout": 30
@@ -82,36 +57,35 @@ data:
 
     cd /homebridge
 
-    npm install --save @switchbot/homebridge-switchbot@2.2.2
+    apt-get update
+    apt-get install -y netcat bluetooth bluez expect
+
     npm install --save homebridge-cmdswitch2@0.2.10
     npm install --save homebridge-dummy-thermostat@1.1.0
-    npm install --save homebridge-miot@1.6.1
 
-    apt-get update
-    apt-get install -y netcat bluetooth bluez
-
-    python3 -m pip install idasen-controller
+    python3 -m pip install linak-controller==1.1.1
 
     sed -i 's/BLUETOOTH_ENABLED=0/BLUETOOTH_ENABLED=1/' /etc/init.d/bluetooth
     service bluetooth start
 
-    ./idasenctl.sh server &
+    unbuffer ./linak.sh server &> ./linak.log 2>&1 &homeconf
 
-  idasen.yaml: |
+  linak.yaml: |
     adapter_name: hci0
     mac_address: {{ manifests_homebridge.devices.office_desk.mac }}
     connection_timeout: 10
     movement_timeout: 30
+    base_height: 620
     server_address: 127.0.0.1
     server_port: 9123
     favourites:
       sit: {{ manifests_homebridge.devices.office_desk.sit }}
       stand: {{ manifests_homebridge.devices.office_desk.stand }}
 
-  idasenctl.sh: |
+  linak.sh: |
     #!/usr/bin/env bash
 
-    STATE_FILE="/homebridge/idasen_state"
+    STATE_FILE="/homebridge/linak_state"
     STATE_SIT="sit"
     STATE_STAND="stand"
 
@@ -148,7 +122,7 @@ data:
     }
 
     move_to() {
-      echo "{\"move_to\": \"$1\"}" | nc -w 1 127.0.0.1 9123
+      echo "{\"command\": \"move_to\", \"move_to\": \"$1\"}" | nc -w 1 127.0.0.1 9123
     }
 
     move_stop() {

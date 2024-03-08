@@ -1,0 +1,7 @@
+---
+- name: Configure private registry DNS
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^(\\d+\\.){4}\\s+{{ k3s_registry.host }}$"
+    line: "{{ k3s_registry.ip }} {{ k3s_registry.host }}"

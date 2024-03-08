@@ -1,0 +1,21 @@
+---
+- name: Create K3s directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ k3s_dir }}"
+    - "{{ k3s_config_dir }}"
+
+- name: Copy K3s config
+  become: true
+  ansible.builtin.template:
+    src: "{{ k3s_mode }}.yaml.j2"
+    dest: "{{ k3s_config_dir }}/config.yaml"
+
+- name: Copy K3s registries config
+  become: true
+  ansible.builtin.template:
+    src: "registries.yaml.j2"
+    dest: "{{ k3s_config_dir }}/registries.yaml"

@@ -129,11 +129,23 @@ k3s_node_name: "{{ cloud_node.nodename }}"
 k3s_server_url: https://{{ cloud_nodes.controller.ip }}:6443
 k3s_registry:
   host: "{{ home_cloud.registry.host }}"
+  ip: "{{ home_cloud.registry.ip }}"
   username: "{{ home_cloud.registry.username }}"
   password: "{{ home_cloud.registry.password | b64decode }}"
 
 k3s_enable: true
 k3s_start: true
+
+# Docker
+docker_registry:
+  host: "{{ home_cloud.registry.host }}"
+  username: "{{ home_cloud.registry.username }}"
+  password: "{{ home_cloud.registry.password | b64decode }}"
+
+docker_images:
+  homebridge:
+    name: homebridge
+    tag: 0.1.0
 
 # Manifests
 manifests_dir: /etc/kubernetes/manifests
@@ -158,22 +170,6 @@ manifests_haproxy:
   username: "{{ home_cloud.haproxy.username }}"
   password: "{{ home_cloud.haproxy.password | b64decode | password_hash('md5') | b64encode }}"
   timezone: "{{ home.timezone }}"
-
-manifests_pihole:
-  host: "{{ home_cloud.pihole.host }}"
-  healthz_host: healthz.{{ home_cloud.domain }}
-  ip: "{{ home_cloud.pihole.ip }}"
-  external_ips: "{{ cloud_agent_nodes | map(attribute='ip') }}"
-  username: "{{ home_cloud.pihole.username }}"
-  password: "{{ home_cloud.pihole.password }}"
-  timezone: "{{ home.timezone }}"
-  upstream_dns: "{{ home_network.upstream_dns }}"
-  dns_records: >-
-    {{
-      cloud_nodes.values() | list +
-      dict(cloud_agent_nodes | map(attribute='ip') | product([home_cloud.domain])) |
-      dict2items(key_name='ip', value_name='host')
-    }}
 
 manifests_longhorn:
   host: "{{ home_cloud.longhorn.host }}"
@@ -216,23 +212,13 @@ manifests_longhorn:
         path: "{{ cloud_nodes.agent4.disks.1.path }}/k3s/longhorn"
         allowScheduling: true
 
-manifests_grafana:
-  host: "{{ home_cloud.grafana.host }}"
-  username: "{{ home_cloud.grafana.username }}"
-  password: "{{ home_cloud.grafana.password }}"
-
 manifests_homebridge:
   host: "{{ home_cloud.homebridge.host }}"
   timezone: "{{ home.timezone }}"
   username: "{{ home_cloud.homebridge.username }}"
   pin: "{{ home_cloud.homebridge.pin | b64decode }}"
-  platforms:
-    switchbot:
-      token: "{{ home_cloud.homebridge.platforms.switchbot.token }}"
-      secret: "{{ home_cloud.homebridge.platforms.switchbot.secret }}"
+  image: "{{ manifests_registry.host }}/{{ docker_images.homebridge.name }}:{{ docker_images.homebridge.tag }}"
   devices:
-    living_room_heating_switch:
-      device_id: "{{ home_cloud.homebridge.devices.living_room_heating_switch.device_id }}"
     office_desk:
       mac: "{{ home_cloud.homebridge.devices.office_desk.mac }}"
       sit: "{{ home_cloud.homebridge.devices.office_desk.sit }}"

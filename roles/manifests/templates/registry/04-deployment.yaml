@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+  namespace: registry
+  labels:
+    app.kubernetes.io/name: registry
+    app.kubernetes.io/component: registry
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: registry
+      app.kubernetes.io/component: registry
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: registry
+        app.kubernetes.io/component: registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2.8.3
+          env:
+            - name: REGISTRY_STORAGE_DELETE_ENABLED
+              value: "true"
+            - name: REGISTRY_STORAGE_CACHE_BLOBDESCRIPTOR
+              value: inmemory
+          ports:
+            - name: registry
+              containerPort: 5000
+          volumeMounts:
+            - name: registry
+              mountPath: /var/lib/registry
+      volumes:
+        - name: registry
+          persistentVolumeClaim:
+            claimName: registry

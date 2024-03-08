@@ -1,0 +1,24 @@
+---
+- name: Login to the docker registry
+  community.docker.docker_login:
+    registry_url: "{{ docker_registry.host }}"
+    username: "{{ docker_registry.username }}"
+    password: "{{ docker_registry.password }}"
+    tls: true
+
+- name: Build and push docker images
+  community.docker.docker_image:
+    build:
+      path: "{{ role_path }}/files/{{ item }}"
+      platform: arm64
+    name: "{{ docker_registry.host }}/{{ docker_images[item].name }}"
+    tag: "{{ docker_images[item].tag }}"
+    repository: "{{ docker_registry.host }}/{{ docker_images[item].name }}"
+    source: build
+    push: true
+    tls: true
+  loop: >-
+    {{
+      lookup('filetree', '../files')
+        | json_query('[?state == `directory` && !contains(path, `/`)].path')
+    }}

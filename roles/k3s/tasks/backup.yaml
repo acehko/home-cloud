@@ -1,19 +1,4 @@
 ---
-# - name: Install cronie
-#   become: true
-#   ansible.builtin.apt:
-#     name: cronie
-#     state: present
-#   when: k3s_backup
-
-# - name: Start cronie
-#   become: true
-#   ansible.builtin.service:
-#     name: cronie
-#     state: started
-#     enabled: true
-#   when: k3s_backup
-
 - name: Copy K3s backup script
   become: true
   ansible.builtin.template:
