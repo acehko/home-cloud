@@ -115,7 +115,7 @@ storage_disks: "{{ cloud_node.disks if cloud_node.disks is defined else [] }}"
 
 # K3s
 k3s_url: https://get.k3s.io
-k3s_version: v1.27.1+k3s1
+k3s_version: v1.28.7+k3s1
 k3s_dir: /var/lib/rancher/k3s
 k3s_config_dir: /etc/rancher/k3s
 
