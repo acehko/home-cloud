@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: homebridge
 data:
-  homebridge.json: |
+  config.json: |
     {
       "bridge": {
         "name": "Homebridge",
@@ -34,6 +34,15 @@ data:
               "polling": true,
               "interval": 1,
               "timeout": 30
+            },
+            {
+              "name": "Living Room Playstation",
+              "on_cmd": "playactor wake --host-name {{ manifests_homebridge.devices.living_room_playstation.name }}",
+              "off_cmd": "playactor standby --host-name {{ manifests_homebridge.devices.living_room_playstation.name }}",
+              "state_cmd": "playactor check --host-name {{ manifests_homebridge.devices.living_room_playstation.name }} | grep -i '200 Ok'",
+              "polling": true,
+              "interval": 1,
+              "timeout": 30
             }
           ]
         }
@@ -52,23 +61,22 @@ data:
       ]
     }
 
-  homebridge.sh: |
+  startup.sh: |
     #!/usr/bin/env bash
 
-    cd /homebridge
-
-    apt-get update
-    apt-get install -y netcat bluetooth bluez expect
-
-    npm install --save homebridge-cmdswitch2@0.2.10
-    npm install --save homebridge-dummy-thermostat@1.1.0
-
-    python3 -m pip install linak-controller==1.1.1
-
-    sed -i 's/BLUETOOTH_ENABLED=0/BLUETOOTH_ENABLED=1/' /etc/init.d/bluetooth
     service bluetooth start
 
-    unbuffer ./linak.sh server &> ./linak.log 2>&1 &homeconf
+    unbuffer ./linak.sh server &> ./linak.log &
+
+  package.json: |
+    {
+      "dependencies": {
+        "homebridge": "1.7.0",
+        "homebridge-cmdswitch2": "0.2.10",
+        "homebridge-dummy-thermostat": "1.1.0",
+        "playactor": "0.4.1"
+      }
+    }
 
   linak.yaml: |
     adapter_name: hci0
@@ -136,3 +144,24 @@ data:
     }
 
     main "$1" "$2"
+
+  playactor.json: |
+    {
+      "{{ manifests_homebridge.devices.living_room_playstation.mac }}": {
+        "app-type": "r",
+        "auth-type": "R",
+        "client-type": "vr",
+        "model": "w",
+        "user-credential": "{{ manifests_homebridge.devices.living_room_playstation.credentials }}",
+        "accountId": "{{ manifests_homebridge.devices.living_room_playstation.account_id }}",
+        "registration": {
+          "AP-Bssid": "{{ manifests_homebridge.devices.living_room_playstation.bssid }}",
+          "AP-Name": "PS5",
+          "PS5-Mac": "{{ manifests_homebridge.devices.living_room_playstation.mac | lower }}",
+          "PS5-RegistKey": "{{ manifests_homebridge.devices.living_room_playstation.regist_key }}",
+          "PS5-Nickname": "{{ manifests_homebridge.devices.living_room_playstation.name }}",
+          "RP-KeyType": "2",
+          "RP-Key": "{{ manifests_homebridge.devices.living_room_playstation.rp_key }}"
+        }
+      }
+    }

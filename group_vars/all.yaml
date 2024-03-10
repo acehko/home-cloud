@@ -146,7 +146,7 @@ docker_registry:
 docker_images:
   homebridge:
     name: homebridge
-    tag: 0.1.0
+    tag: 0.2.0
 
 # Manifests
 manifests_dir: /etc/kubernetes/manifests
@@ -224,3 +224,11 @@ manifests_homebridge:
       mac: "{{ home_cloud.homebridge.devices.office_desk.mac }}"
       sit: "{{ home_cloud.homebridge.devices.office_desk.sit }}"
       stand: "{{ home_cloud.homebridge.devices.office_desk.stand }}"
+    living_room_playstation:
+      name: "{{ home_cloud.homebridge.devices.living_room_playstation.name }}"
+      mac: "{{ home_cloud.homebridge.devices.living_room_playstation.mac }}"
+      account_id: "{{ home_cloud.homebridge.devices.living_room_playstation.account_id }}"
+      bssid: "{{ home_cloud.homebridge.devices.living_room_playstation.bssid }}"
+      regist_key: "{{ home_cloud.homebridge.devices.living_room_playstation.regist_key }}"
+      rp_key: "{{ home_cloud.homebridge.devices.living_room_playstation.rp_key }}"
+      credentials: "{{ home_cloud.homebridge.devices.living_room_playstation.credentials | b64decode }}"

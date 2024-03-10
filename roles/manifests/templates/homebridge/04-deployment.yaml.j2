@@ -38,21 +38,27 @@ spec:
             - name: homebridge
               mountPath: /homebridge
               subPath: homebridge
-            - name: config
-              mountPath: /homebridge/config.json
-              subPath: homebridge.json
-            - name: config
-              mountPath: /homebridge/startup.sh
-              subPath: homebridge.sh
             - name: homebridge
               mountPath: /var/lib/bluetooth
               subPath: bluetooth
+            - name: config
+              mountPath: /homebridge/package.json
+              subPath: package.json
+            - name: config
+              mountPath: /homebridge/config.json
+              subPath: config.json
+            - name: config
+              mountPath: /homebridge/startup.sh
+              subPath: startup.sh
             - name: config
               mountPath: /home/homebridge/.config/linak-controller/config.yaml
               subPath: linak.yaml
             - name: config
               mountPath: /homebridge/linak.sh
               subPath: linak.sh
+            - name: config
+              mountPath: /home/homebridge/.config/playactor/credentials.json
+              subPath: playactor.json
           securityContext:
             privileged: true
       volumes:
