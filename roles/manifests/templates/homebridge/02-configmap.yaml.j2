@@ -41,8 +41,21 @@ data:
               "off_cmd": "playactor standby --host-name {{ manifests_homebridge.devices.living_room_playstation.name }}",
               "state_cmd": "playactor check --host-name {{ manifests_homebridge.devices.living_room_playstation.name }} | grep -i '200 Ok'",
               "polling": true,
-              "interval": 1,
+              "interval": 5,
               "timeout": 30
+            }
+          ]
+        },
+        {
+          "platform": "webostv",
+          "devices": [
+            {
+              "name": "Living Room TV",
+              "ip": "{{ manifests_homebridge.devices.living_room_tv.ip }}",
+              "mac": "{{ manifests_homebridge.devices.living_room_tv.mac }}",
+              "pollingInterval": 5,
+              "volumeControl": false,
+              "channelControl": false
             }
           ]
         }
@@ -74,6 +87,7 @@ data:
         "homebridge": "1.7.0",
         "homebridge-cmdswitch2": "0.2.10",
         "homebridge-dummy-thermostat": "1.1.0",
+        "homebridge-webos-tv": "2.4.3",
         "playactor": "0.4.1"
       }
     }

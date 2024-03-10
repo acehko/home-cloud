@@ -232,3 +232,6 @@ manifests_homebridge:
       regist_key: "{{ home_cloud.homebridge.devices.living_room_playstation.regist_key }}"
       rp_key: "{{ home_cloud.homebridge.devices.living_room_playstation.rp_key }}"
       credentials: "{{ home_cloud.homebridge.devices.living_room_playstation.credentials | b64decode }}"
+    living_room_tv:
+      mac: "{{ home_cloud.homebridge.devices.living_room_tv.mac }}"
+      ip: "{{ home_cloud.homebridge.devices.living_room_tv.ip }}"
