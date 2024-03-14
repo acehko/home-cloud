@@ -156,6 +156,14 @@ manifests_kubernetes:
   dashboard:
     host: "{{ home_cloud.kubernetes.dashboard.host }}"
 
+manifests_coredns:
+  upstream: "{{ home_network.dns }}"
+  dns_records:
+    - domain: "{{ home_cloud.domain }}"
+      ip: "{{ cloud_nodes.controller.ip }}"
+  external_ips:
+    - "{{ cloud_nodes.controller.ip }}"
+
 manifests_registry:
   host: "{{ home_cloud.registry.host }}"
   username: "{{ home_cloud.registry.username }}"
