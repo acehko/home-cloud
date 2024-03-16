@@ -3,6 +3,3 @@
 - import_playbook: agents.yaml
 - import_playbook: docker.yaml
 - import_playbook: manifests.yaml
-  vars:
-    app: kubernetes
-- import_playbook: manifests.yaml

@@ -8,11 +8,10 @@ metadata:
     app.kubernetes.io/name: cert-manager
 spec:
   chart: cert-manager
-  version: 1.9.1
+  version: 1.14.4
   repo: https://charts.jetstack.io
   targetNamespace: cert-manager
   valuesContent: |-
-    # Config
     # https://github.com/cert-manager/cert-manager/blob/v1.9.1/deploy/charts/cert-manager/values.yaml
 
     global:

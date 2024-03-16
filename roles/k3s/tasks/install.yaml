@@ -19,8 +19,8 @@
 
 - name: Install Ansible Kubernetes module requirements
   become: true
-  ansible.builtin.pip:
-    name: kubernetes
+  ansible.builtin.apt:
+    name: python3-kubernetes
     state: present
   when: k3s_ansible_requirements
 

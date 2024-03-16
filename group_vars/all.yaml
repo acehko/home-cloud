@@ -111,7 +111,7 @@ cloud_node: "{{ (cloud_nodes.values() | selectattr('hostname', 'equalto', ansibl
 cloud_is_controller: "{{ true if cloud_node.nodename == 'controller' else false }}"
 
 # Storage
-storage_disks: "{{ cloud_node.disks if cloud_node.disks is defined else [] }}"
+storage_disks: "{{ cloud_node.disks }}"
 
 # K3s
 k3s_url: https://get.k3s.io
@@ -146,7 +146,7 @@ docker_registry:
 docker_images:
   homebridge:
     name: homebridge
-    tag: 0.2.0
+    tag: 0.1.0
 
 # Manifests
 manifests_dir: /etc/kubernetes/manifests

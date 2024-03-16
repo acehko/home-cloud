@@ -22,7 +22,7 @@ spec:
     spec:
       hostNetwork: true
       nodeSelector:
-        kubernetes.io/hostname: agent4
+        kubernetes.io/hostname: agent1
       containers:
         - name: homebridge
           image: "{{ manifests_homebridge.image }}"

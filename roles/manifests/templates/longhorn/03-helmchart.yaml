@@ -8,11 +8,11 @@ metadata:
     app.kubernetes.io/name: longhorn
 spec:
   chart: longhorn
-  version: 1.4.2
+  version: 1.6.0
   repo: https://charts.longhorn.io
   targetNamespace: longhorn
   valuesContent: |-
-    # https://github.com/longhorn/longhorn/blob/v1.4.2/chart/questions.yaml
+    # https://github.com/longhorn/longhorn/blob/v1.6.0/chart/questions.yaml
     ingress:
       enabled: false
 
@@ -22,7 +22,6 @@ spec:
       defaultClassReplicaCount: 3
 
     defaultSettings:
-      taintToleration: node-role.kubernetes.io/control-plane=true:NoSchedule
       allowRecurringJobWhileVolumeDetached: true
       createDefaultDiskLabeledNodes: true
       defaultDataLocality: disabled
