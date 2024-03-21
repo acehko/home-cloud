@@ -243,3 +243,5 @@ manifests_homebridge:
     living_room_tv:
       mac: "{{ home_cloud.homebridge.devices.living_room_tv.mac }}"
       ip: "{{ home_cloud.homebridge.devices.living_room_tv.ip }}"
+    living_room_speakers:
+      url: "http://{{ home_cloud.homebridge.devices.living_room_speakers.ip }}:{{ home_cloud.homebridge.devices.living_room_speakers.port }}"

@@ -70,6 +70,20 @@ data:
           "accessory": "Thermostat",
           "name": "Living Room Humidity",
           "temperatureDisplayUnits": 0
+        },
+        {
+          "accessory": "HTTP-LIGHTBULB",
+          "name": "Living Room Speakers Volume",
+          "pullInterval": 5000,
+          "onUrl": "{{ manifests_homebridge.devices.living_room_speakers.url }}/Volume?mute=0",
+          "offUrl": "{{ manifests_homebridge.devices.living_room_speakers.url }}/Volume?mute=1",
+          "statusUrl": "{{ manifests_homebridge.devices.living_room_speakers.url }}/Status",
+          "statusPattern": "<mute>0</mute>",
+          "brightness": {
+            "setUrl": "{{ manifests_homebridge.devices.living_room_speakers.url }}/Volume?level=%s",
+            "statusUrl": "{{ manifests_homebridge.devices.living_room_speakers.url }}/Status",
+            "statusPattern": "<volume>([0-9]{1,3})</volume>"
+          }
         }
       ]
     }
@@ -87,6 +101,7 @@ data:
         "homebridge": "1.7.0",
         "homebridge-cmdswitch2": "0.2.10",
         "homebridge-dummy-thermostat": "1.1.0",
+        "homebridge-http-lightbulb": "1.2.4",
         "homebridge-webos-tv": "2.4.3",
         "playactor": "0.4.1"
       }
