@@ -49,6 +49,24 @@ data:
               "channelControl": false
             }
           ]
+        },
+        {
+          "platform": "miot",
+          "devices": [
+            {
+              "name": "Living Room Fan",
+              "ip": "{{ manifests_homebridge.devices.living_room_fan.ip }}",
+              "token": "{{ manifests_homebridge.devices.living_room_fan.token }}",
+              "model": "dmaker.fan.p33",
+              "pollingInterval": 5,
+              "moveControl": false,
+              "buzzerControl": false,
+              "ledControl": false,
+              "modeControl": false,
+              "shutdownTimer": false,
+              "actionButtons": false
+            }
+          ]
         }
       ],
       "accessories": [
@@ -93,6 +111,7 @@ data:
         "homebridge-cmdswitch2": "0.2.10",
         "homebridge-dummy-thermostat": "1.1.0",
         "homebridge-http-lightbulb": "1.2.4",
+        "homebridge-miot": "1.7.0",
         "homebridge-webos-tv": "2.4.3"
       }
     }
