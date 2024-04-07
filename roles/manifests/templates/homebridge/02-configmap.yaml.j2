@@ -34,15 +34,6 @@ data:
               "polling": true,
               "interval": 1,
               "timeout": 30
-            },
-            {
-              "name": "Living Room Playstation",
-              "on_cmd": "playactor wake --host-name {{ manifests_homebridge.devices.living_room_playstation.name }}",
-              "off_cmd": "playactor standby --host-name {{ manifests_homebridge.devices.living_room_playstation.name }}",
-              "state_cmd": "playactor check --host-name {{ manifests_homebridge.devices.living_room_playstation.name }} | grep -i '200 Ok'",
-              "polling": true,
-              "interval": 5,
-              "timeout": 30
             }
           ]
         },
@@ -102,8 +93,7 @@ data:
         "homebridge-cmdswitch2": "0.2.10",
         "homebridge-dummy-thermostat": "1.1.0",
         "homebridge-http-lightbulb": "1.2.4",
-        "homebridge-webos-tv": "2.4.3",
-        "playactor": "0.4.1"
+        "homebridge-webos-tv": "2.4.3"
       }
     }
 
@@ -173,24 +163,3 @@ data:
     }
 
     main "$1" "$2"
-
-  playactor.json: |
-    {
-      "{{ manifests_homebridge.devices.living_room_playstation.mac }}": {
-        "app-type": "r",
-        "auth-type": "R",
-        "client-type": "vr",
-        "model": "w",
-        "user-credential": "{{ manifests_homebridge.devices.living_room_playstation.credentials }}",
-        "accountId": "{{ manifests_homebridge.devices.living_room_playstation.account_id }}",
-        "registration": {
-          "AP-Bssid": "{{ manifests_homebridge.devices.living_room_playstation.bssid }}",
-          "AP-Name": "PS5",
-          "PS5-Mac": "{{ manifests_homebridge.devices.living_room_playstation.mac | lower }}",
-          "PS5-RegistKey": "{{ manifests_homebridge.devices.living_room_playstation.regist_key }}",
-          "PS5-Nickname": "{{ manifests_homebridge.devices.living_room_playstation.name }}",
-          "RP-KeyType": "2",
-          "RP-Key": "{{ manifests_homebridge.devices.living_room_playstation.rp_key }}"
-        }
-      }
-    }
