@@ -130,7 +130,6 @@ k3s_node_name: "{{ cloud_node.nodename }}"
 k3s_server_url: https://{{ cloud_nodes.controller.ip }}:6443
 k3s_registry:
   host: "{{ home_cloud.registry.host }}"
-  ip: "{{ home_cloud.registry.ip }}"
   username: "{{ home_cloud.registry.username }}"
   password: "{{ home_cloud.registry.password | b64decode }}"
 
